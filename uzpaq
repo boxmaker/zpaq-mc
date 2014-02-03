@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# extfs support for ZPAQ
+# Written by boxmaker <boxmaker@live.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ZPAQ=$(which zpaq 2>/dev/null) || ZPAQ=$(which zpaq64 2>/dev/null) || ZPAQ=""
+#ZPAQ=~/zpaq
+
+mcuzpaq_list ()
+{
+    $ZPAQ l "$1" -all -quiet -mc
+}
+
+mcuzpaq_copyout ()
+{
+	fn=$(echo -n $2 | \
+	  sed -e "s/^by\ date\/[0-9]\+\ :\ \([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)\ \([0-9]\{2\}\):\([0-9]\{2\}\):\([0-9]\{2\}\)\//\1\2\3\4\5\6 /; \
+	          s/^by\ path\/\(.*\)\ \[ver\.0*\([0-9]\+\)\]$/\2 \1/")
+#" Commented quota symbol for MCEDIT syntax highlight work correct :)
+	
+	rm -rf "$3"
+	$ZPAQ x "$1" "${fn#* }" -until ${fn%% *} -to "$3" >/dev/null 2>&1
+}
+
+mcuzpaq_copyin ()
+{
+	{ printf "Function not implemented..." >&2 ; exit 1 ; }
+}
+
+mcuzpaq_mkdir ()
+{
+	{ printf "Function not implemented..." >&2 ; exit 1 ; }
+}
+
+mcuzpaq_rm ()
+{
+	{ printf "Function not implemented..." >&2 ; exit 1 ; }
+}
+
+mcuzpaq_rmdir ()
+{
+	{ printf "Function not implemented..." >&2 ; exit 1 ; }
+}
+
+if [ -z "$ZPAQ" ]; then
+    echo "Error: could not find zpaq (looked for zpaq and zpaq64)" >&2
+    exit 1
+fi
+
+cmd="$1"
+shift
+
+case "$cmd" in
+  list)    mcuzpaq_list    "$@" ;;
+  copyout) mcuzpaq_copyout "$@" ;;
+  copyin)  mcuzpaq_copyin  "$@" ;;
+  mkdir)   mcuzpaq_mkdir   "$@" ;;
+  rm)      mcuzpaq_rm      "$@" ;;
+  rmdir)   mcuzpaq_rmdir   "$@" ;;
+  *) exit 1 ;;
+esac
+exit 0
